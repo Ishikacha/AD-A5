@@ -12,37 +12,43 @@ import java.util.*;
 
 import supportStuff.applicationSupport.Coordinate;
 
+// Klasse zur Durchführung der Pfadsuche im Labyrinth
 public class PathFinder implements PathFinder_I, Serializable {
 
-    private final Maze maze;
+    private final Maze maze; // Das Labyrinth, in dem der Pfad gesucht wird
 
+    // Konstruktor, der das Labyrinth für die Pfadsuche initialisiert
     public PathFinder(final Maze maze) {
         this.maze = maze;
     }
 
+    // Hauptmethode, um den kürzesten Pfad zu finden
     @Override
     public List<Coordinate> getShortestPath() {
+        // Versuche zuerst Breitensuche (BFS)
         List<Coordinate> shortestPathBFS = breadthFirstSearch();
         if (shortestPathBFS != null) {
             return shortestPathBFS;
         }
+        // Wenn BFS keinen Pfad findet, verwende Tiefensuche (DFS)
         return depthFirstSearch();
     }
 
+    // Implementierung der Breitensuche (BFS)
     private List<Coordinate> breadthFirstSearch() {
-        Queue<List<Coordinate>> queue = new LinkedList<>();
-        Set<Coordinate> visited = new HashSet<>();
+        Queue<List<Coordinate>> queue = new LinkedList<>(); // Warteschlange für Pfade
+        Set<Coordinate> visited = new HashSet<>(); // Bereits besuchte Koordinaten
         Coordinate start = maze.getStart();
         Coordinate destination = maze.getDestination();
 
-        queue.add(new ArrayList<>(Arrays.asList(start)));
+        queue.add(new ArrayList<>(Arrays.asList(start))); // Füge Startkoordinate zum Pfad hinzu
 
         while (!queue.isEmpty()) {
-            List<Coordinate> path = queue.poll();
-            Coordinate current = path.get(path.size() - 1);
+            List<Coordinate> path = queue.poll(); // Entferne den ersten Pfad aus der Warteschlange
+            Coordinate current = path.get(path.size() - 1); // Aktuelle Koordinate im Pfad
 
             if (current.equals(destination)) {
-                return path;
+                return path; // Rückgabe des gefundenen Pfads, wenn das Ziel erreicht ist
             }
 
             for (Coordinate neighbor : getValidNeighbors(current)) {
@@ -50,28 +56,29 @@ public class PathFinder implements PathFinder_I, Serializable {
                     visited.add(neighbor);
                     List<Coordinate> newPath = new ArrayList<>(path);
                     newPath.add(neighbor);
-                    queue.add(newPath);
+                    queue.add(newPath); // Füge neuen Pfad mit Nachbarkoordinate zur Warteschlange hinzu
                 }
             }
-            path.clear(); // Entfernen des Referenzpfads, um Speicher zu sparen
+            path.clear(); // Lösche den Referenzpfad, um Speicher zu sparen
         }
 
-        return null; // Kein Weg gefunden
+        return null; // Kein Pfad gefunden
     }
 
+    // Implementierung der Tiefensuche (DFS)
     private List<Coordinate> depthFirstSearch() {
-        Stack<Coordinate> stack = new Stack<>();
-        Set<Coordinate> visited = new HashSet<>();
+        Stack<Coordinate> stack = new Stack<>(); // Stapel für die Tiefensuche
+        Set<Coordinate> visited = new HashSet<>(); // Bereits besuchte Koordinaten
         Coordinate start = maze.getStart();
         Coordinate destination = maze.getDestination();
 
-        stack.push(start);
+        stack.push(start); // Startkoordinate zum Stapel hinzufügen
 
         while (!stack.isEmpty()) {
-            Coordinate current = stack.pop();
+            Coordinate current = stack.pop(); // Entferne die oberste Koordinate vom Stapel
 
             if (current.equals(destination)) {
-                return getPathFromVisited(visited, start, destination);
+                return getPathFromVisited(visited, start, destination); // Finde den Pfad zurückverfolgend
             }
 
             if (!visited.contains(current)) {
@@ -79,15 +86,16 @@ public class PathFinder implements PathFinder_I, Serializable {
 
                 for (Coordinate neighbor : getValidNeighbors(current)) {
                     if (!visited.contains(neighbor)) {
-                        stack.push(neighbor);
+                        stack.push(neighbor); // Füge Nachbarkoordinaten zum Stapel hinzu
                     }
                 }
             }
         }
 
-        return null;
+        return null; // Kein Pfad gefunden
     }
 
+    // Methode zur Ermittlung der gültigen Nachbarkoordinaten für eine gegebene Koordinate
     private List<Coordinate> getValidNeighbors(Coordinate coordinate) {
         int[][] mazeField = maze.getMazeField();
         int x = coordinate.getX();
@@ -109,9 +117,10 @@ public class PathFinder implements PathFinder_I, Serializable {
             }
         }
 
-        return neighbors;
+        return neighbors; // Liste der gültigen Nachbarn zurückgeben
     }
 
+    // Methode zur Erstellung des Pfads aus den bereits besuchten Koordinaten
     private List<Coordinate> getPathFromVisited(Set<Coordinate> visited, Coordinate start, Coordinate destination) {
         List<Coordinate> path = new ArrayList<>();
         path.add(destination);
@@ -128,6 +137,6 @@ public class PathFinder implements PathFinder_I, Serializable {
         }
 
         Collections.reverse(path);
-        return path;
+        return path; // Rückgabe des Pfads von Start zu Ziel
     }
 }
