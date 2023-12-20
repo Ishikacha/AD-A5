@@ -1,0 +1,42 @@
+/*
+ * Dies ist nur ein einfaches Code-Skelett/Fragment, das primär zeigen soll
+ * wie ein Array über (zufällige) Items generiert werden kann
+ */
+
+// generate array to be sorted (and check list)
+final int amountOfItems    = (int)( 100_000 * 0.999 );
+final int excludingMaximum = amountOfItems;
+final UnsortedItemArrayGenerator uiag = new UnsortedItemArrayGenerator( amountOfItems, excludingMaximum );
+final Item[] arrayToBeSorted = uiag.createUnsortedItemArray();
+
+// checklist for later review of the results
+List<Item> checkList = new ArrayList<Item>();
+for( final Item curItem : arrayToBeSorted )  checkList.add( curItem );
+
+//...
+
+// the array sorter
+final ArraySorter arraySorter = new ...;
+
+//sort array
+arraySorter.sort( arrayToBeSorted );
+
+// check array, if sorted & valid
+for( int i=1; i<amountOfItems; i++ ){
+    if( 0 < arrayToBeSorted[i-1].compareTo( arrayToBeSorted[i] )){
+        throw new AssertionError();
+    }//if
+}//for
+for( int i=arrayToBeSorted.length; --i>=0; ){
+    if( ! checkList.remove( arrayToBeSorted[i] )){
+        throw new AssertionError();
+    }//if
+}//for
+if( ! checkList.isEmpty() ){
+    throw new AssertionError();
+}//if
+
+//...
+
+System.out.printf( "\n\n" );
+System.out.printf( "THE END - test finished - no errors detected" );
